@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crowd Counter</title>
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+}
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    color: #333;
+}
+
+button {
+    padding: 10px 20px;
+    margin: 10px;
+    border: none;
+    background-color: #007bff;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+#faceCount {
+    font-size: 18px;
+    color: #333;
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Crowd Counter</h1>
+        <button id="uploadBtn">Upload Image</button>
+        <button id="cameraBtn">Use Camera</button>
+        <p id="faceCount">Number of Faces Detected: 0</p>
+    </div>
+    <script>
+        
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("uploadBtn").addEventListener("click", function () {
+                // Trigger file upload dialog
+                document.getElementById("fileInput").click();
+            });
+    
+            document.getElementById("cameraBtn").addEventListener("click", function () {
+                // Send request to backend to start camera
+                fetch("/camera")
+                    .then(response => response.json())
+                    .then(data => {
+                        // Check if 'face_count' property exists in the response
+                        if ('face_count' in data) {
+                            // Update face count
+                            document.getElementById("faceCount").textContent = "Number of Faces Detected: " + data.face_count;
+                        } else {
+                            // Handle error or unexpected response
+                            console.error("Unexpected response from backend:", data);
+                        }
+                    })
+                    .catch(error => {
+                        // Handle fetch error
+                        console.error("Error fetching data from backend:", error);
+                    });
+            });
+        });
+    </script>
+
+</body>
+</html>
