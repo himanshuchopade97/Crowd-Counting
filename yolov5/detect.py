@@ -181,8 +181,10 @@ def run(
                 writer.writerow(data)
 
         # Process predictions
+        # face_count=0
         for i, det in enumerate(pred):  # per image
             seen += 1
+            face_count += len(det)
             if webcam:  # batch_size >= 1
                 p, im0, frame = path[i], im0s[i].copy(), dataset.count
                 s += f"{i}: "
@@ -227,7 +229,7 @@ def run(
                         annotator.box_label(xyxy, label, color=colors(c, True))
                     if save_crop:
                         save_one_box(xyxy, imc, file=save_dir / "crops" / names[c] / f"{p.stem}.jpg", BGR=True)
-
+                
             # Stream results
             im0 = annotator.result()
             if view_img:
@@ -259,6 +261,7 @@ def run(
 
         # Print time (inference-only)
         LOGGER.info(f"{s}{'' if len(det) else '(no detections), '}{dt[1].dt * 1E3:.1f}ms")
+        # return face_count
 
     # Print results
     t = tuple(x.t / seen * 1e3 for x in dt)  # speeds per image
@@ -314,7 +317,12 @@ def main(opt):
     """Executes YOLOv5 model inference with given options, checking requirements before running the model."""
     check_requirements(ROOT / "requirements.txt", exclude=("tensorboard", "thop"))
     run(**vars(opt))
-
+# def main(opt):
+#     """Executes YOLOv5 model inference with given options, checking requirements before running the model."""
+#     check_requirements(ROOT / "requirements.txt", exclude=("tensorboard", "thop"))
+#     while True:
+#         face_count = run(**vars(opt))
+#         print(f"Face count: {face_count}")
 
 if __name__ == "__main__":
     opt = parse_opt()
