@@ -28,10 +28,6 @@ Usage - formats:
                                  yolov5s_paddle_model       # PaddlePaddle
 """
 
-
-
-
-import json
 import argparse
 import csv
 import os
@@ -40,7 +36,6 @@ import sys
 from pathlib import Path
 
 import torch
-face_count = 0
 
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # YOLOv5 root directory
@@ -73,36 +68,35 @@ from utils.torch_utils import select_device, smart_inference_mode
 
 @smart_inference_mode()
 def run(
-    weights=ROOT / "best.pt",
-    source=ROOT / "data/images",
-    data=ROOT / "data/widerface.yaml",
-    imgsz=(640, 640),
-    conf_thres=0.25,
-    iou_thres=0.45,
-    max_det=1000,
-    device="",
-    view_img=False,
-    save_txt=False,
-    save_csv=False,
-    save_conf=False,
-    save_crop=False,
-    nosave=False,
-    classes=None,
-    agnostic_nms=False,
-    augment=False,
-    visualize=False,
-    update=False,
-    project=ROOT / "runs/detect",
-    name="exp",
-    exist_ok=False,
-    line_thickness=3,
-    hide_labels=False,
-    hide_conf=False,
-    half=False,
-    dnn=False,
-    vid_stride=1,
+    weights=ROOT / "yolov5s.pt",  # model path or triton URL
+    source=ROOT / "data/images",  # file/dir/URL/glob/screen/0(webcam)
+    data=ROOT / "data/coco128.yaml",  # dataset.yaml path
+    imgsz=(640, 640),  # inference size (height, width)
+    conf_thres=0.25,  # confidence threshold
+    iou_thres=0.45,  # NMS IOU threshold
+    max_det=1000,  # maximum detections per image
+    device="",  # cuda device, i.e. 0 or 0,1,2,3 or cpu
+    view_img=False,  # show results
+    save_txt=False,  # save results to *.txt
+    save_csv=False,  # save results in CSV format
+    save_conf=False,  # save confidences in --save-txt labels
+    save_crop=False,  # save cropped prediction boxes
+    nosave=False,  # do not save images/videos
+    classes=None,  # filter by class: --class 0, or --class 0 2 3
+    agnostic_nms=False,  # class-agnostic NMS
+    augment=False,  # augmented inference
+    visualize=False,  # visualize features
+    update=False,  # update all models
+    project=ROOT / "runs/detect",  # save results to project/name
+    name="exp",  # save results to project/name
+    exist_ok=False,  # existing project/name ok, do not increment
+    line_thickness=3,  # bounding box thickness (pixels)
+    hide_labels=False,  # hide labels
+    hide_conf=False,  # hide confidences
+    half=False,  # use FP16 half-precision inference
+    dnn=False,  # use OpenCV DNN for ONNX inference
+    vid_stride=1,  # video frame-rate stride
 ):
-    face_count = 0
     source = str(source)
     save_img = not nosave and not source.endswith(".txt")  # save inference images
     is_file = Path(source).suffix[1:] in (IMG_FORMATS + VID_FORMATS)
@@ -181,10 +175,8 @@ def run(
                 writer.writerow(data)
 
         # Process predictions
-        # face_count=0
         for i, det in enumerate(pred):  # per image
             seen += 1
-            face_count += len(det)
             if webcam:  # batch_size >= 1
                 p, im0, frame = path[i], im0s[i].copy(), dataset.count
                 s += f"{i}: "
@@ -229,7 +221,7 @@ def run(
                         annotator.box_label(xyxy, label, color=colors(c, True))
                     if save_crop:
                         save_one_box(xyxy, imc, file=save_dir / "crops" / names[c] / f"{p.stem}.jpg", BGR=True)
-                
+
             # Stream results
             im0 = annotator.result()
             if view_img:
@@ -261,7 +253,6 @@ def run(
 
         # Print time (inference-only)
         LOGGER.info(f"{s}{'' if len(det) else '(no detections), '}{dt[1].dt * 1E3:.1f}ms")
-        # return face_count
 
     # Print results
     t = tuple(x.t / seen * 1e3 for x in dt)  # speeds per image
@@ -308,21 +299,13 @@ def parse_opt():
     opt.imgsz *= 2 if len(opt.imgsz) == 1 else 1  # expand
     print_args(vars(opt))
     return opt
-    
-
-  
 
 
 def main(opt):
     """Executes YOLOv5 model inference with given options, checking requirements before running the model."""
     check_requirements(ROOT / "requirements.txt", exclude=("tensorboard", "thop"))
     run(**vars(opt))
-# def main(opt):
-#     """Executes YOLOv5 model inference with given options, checking requirements before running the model."""
-#     check_requirements(ROOT / "requirements.txt", exclude=("tensorboard", "thop"))
-#     while True:
-#         face_count = run(**vars(opt))
-#         print(f"Face count: {face_count}")
+
 
 if __name__ == "__main__":
     opt = parse_opt()
