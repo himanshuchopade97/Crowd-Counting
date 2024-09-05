@@ -8,16 +8,16 @@ from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
-# Define the path to your dataset
-dataset_path = 'face_dataset'
+# Define the path to the LFW dataset
+dataset_path = 'lfw_dataset/lfw-deepfunneled/lfw-deepfunneled'
 
-def load_custom_dataset(dataset_path):
+def load_lfw_dataset(dataset_path):
     embeddings = []
     labels = []
     label_names = []
     label_map = {}
     
-    # Loop through each person directory
+    # Loop through each person directory in LFW dataset
     for person_dir in os.listdir(dataset_path):
         person_path = os.path.join(dataset_path, person_dir)
         if os.path.isdir(person_path):
@@ -45,8 +45,8 @@ def load_custom_dataset(dataset_path):
     
     return np.array(embeddings), np.array(labels), label_names
 
-# Load the custom dataset
-embeddings, labels, label_names = load_custom_dataset(dataset_path)
+# Load the LFW dataset
+embeddings, labels, label_names = load_lfw_dataset(dataset_path)
 
 # Split the data into train and test sets
 X_train, X_test, y_train, y_test = train_test_split(embeddings, labels, test_size=0.2, random_state=42)
